@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="study.core.EchoTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-08-14T08:16:22" hostname="maczziriui-MacBookAir.local" time="0.048">
+  <properties/>
+  <testcase name="testEcho()" classname="study.core.EchoTest" time="0.048"/>
+  <system-out><![CDATA[message (1)
+message (2)
+message (3)
+message (4)
+message (5)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
