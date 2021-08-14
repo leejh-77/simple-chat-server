@@ -30,7 +30,7 @@ public class Application {
                 System.out.println("bye");
                 break;
             }
-            this.write(Message.Chat(this.name, msg));
+            this.write(Message.Chat(msg));
         }
     }
 
@@ -49,7 +49,7 @@ public class Application {
 
     private void connect() throws IOException {
         new ChatReader(socket).start();
-        this.write(Message.Entrance(this.roomId));
+        this.write(Message.Entrance(this.name, this.roomId));
     }
 
     void write(Message message) throws IOException {
@@ -70,7 +70,12 @@ public class Application {
             while (true) {
                 try {
                     Message message = Utils.getMapper().readValue(socket.getInputStream(), Message.class);
-                    System.out.println(message.getName() + " : " + message.getMessage());
+                    switch (message.getType()) {
+                        case ping -> System.out.println("ping requested");
+                        case entrance -> System.out.println(message.getName() + " has entered");
+                        case exit -> System.out.println(message.getName() + " has left");
+                        case chat -> System.out.println(message.getName() + " : " + message.getMessage());
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

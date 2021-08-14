@@ -32,15 +32,13 @@ class BroadCaster implements Runnable {
 
     @Override
     public void run() {
-        loop:
         while (true) {
             while (this.messages.isEmpty()) {
                 synchronized (this) {
                     try {
                         this.wait();
                     } catch (InterruptedException e) {
-                        System.out.println("broadCaster : something wrong");
-                        break loop;
+                        e.printStackTrace();
                     }
                 }
             }

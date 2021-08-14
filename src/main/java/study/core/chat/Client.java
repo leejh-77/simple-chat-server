@@ -1,26 +1,29 @@
 package study.core.chat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import study.core.base.Utils;
 import study.core.model.Message;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 
 class Client implements Runnable {
 
     private static final ThreadGroup THREAD_GROUP = new ThreadGroup("Client Threads");
 
-    private final long id;
-
     private final Socket socket;
+
+    private long lastResponse;
 
     private Room room;
     private String name;
 
-    Client(long id, Socket socket) {
-        this.id = id;
+    private boolean isAlive;
+
+    Client(Socket socket) {
+        this.isAlive = true;
         this.socket = socket;
+        this.lastResponse = System.currentTimeMillis();
     }
 
     void start() {
@@ -41,7 +44,7 @@ class Client implements Runnable {
     }
 
     private void readPipe() throws IOException {
-        while (true) {
+        while (this.isAlive) {
             Message message = Utils.getMapper().readValue(this.socket.getInputStream(), Message.class);
             switch (message.getType()) {
                 case chat -> this.room.sendMessage(Message.Chat(this.name, message.getMessage()));
@@ -51,6 +54,7 @@ class Client implements Runnable {
                     Center.getInstance().onClientEntered(this, message.getRoom());
                 }
             }
+            this.lastResponse = System.currentTimeMillis();
         }
     }
 
@@ -64,5 +68,13 @@ class Client implements Runnable {
 
     OutputStream getOutputStream() throws IOException {
         return this.socket.getOutputStream();
+    }
+
+    long getLastResponse() {
+        return this.lastResponse;
+    }
+
+    void terminate() {
+        this.isAlive = false;
     }
 }

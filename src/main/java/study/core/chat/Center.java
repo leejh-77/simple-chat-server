@@ -1,12 +1,13 @@
 package study.core.chat;
 
 import java.net.Socket;
+import java.util.Collection;
 import java.util.HashMap;
 
 public class Center {
 
+    private static final long PING_INTERVAL = 60 * 1000; // miilis
     private static final Center instance = new Center();
-    private static long clientCnt = 0;
 
     private final HashMap<Integer, Room> rooms = new HashMap<>();
 
@@ -16,14 +17,20 @@ public class Center {
 
     public Center() {
         this.rooms.put(1, new Room(1));
+        new PingScheduler(this, PING_INTERVAL).start();
     }
 
     public void createClient(Socket socket) {
-        new Client(++clientCnt, socket).start();
+        new Client(socket).start();
     }
 
-    public void onClientEntered(Client client, Integer roomId) {
+    void onClientEntered(Client client, Integer roomId) {
         Room room = rooms.get(roomId);
         room.addClient(client);
     }
+
+    Collection<Room> getRooms() {
+        return this.rooms.values();
+    }
+
 }

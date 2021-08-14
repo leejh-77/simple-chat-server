@@ -6,6 +6,7 @@ public class Message {
         entrance,
         exit,
         chat,
+        ping,
     }
 
     private Type type;
@@ -40,6 +41,10 @@ public class Message {
         return instance;
     }
 
+    public static Message Chat(String message) {
+        return Chat(null, message);
+    }
+
     public static Message Exit(String name) {
         Message instance = new Message();
         instance.type = Type.exit;
@@ -51,6 +56,12 @@ public class Message {
         return Exit(null);
     }
 
+    public static Message Ping() {
+        Message instance = new Message();
+        instance.type = Type.ping;
+        return instance;
+    }
+
     public static Message Entrance(String name, int roomId) {
         Message instance = new Message();
         instance.type = Type.entrance;
@@ -59,7 +70,4 @@ public class Message {
         return instance;
     }
 
-    public static Message Entrance(int roomId) {
-        return Entrance(null, roomId);
-    }
 }

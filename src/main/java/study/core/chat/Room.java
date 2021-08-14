@@ -4,7 +4,6 @@ import study.core.model.Message;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 public class Room {
@@ -29,14 +28,33 @@ public class Room {
         System.out.println("client removed - " + c.getName() + ", room : " + this.id);
         synchronized (this.clients) {
             this.clients.remove(c);
+            c.terminate();
         }
     }
 
-    Collection<Client> getClients() {
+    List<Client> getClients() {
         return this.clients;
     }
 
     void sendMessage(Message message) {
         this.caster.sendMessage(message);
+    }
+
+    void sendPing(long seconds) {
+        long now = System.currentTimeMillis();
+        Client[] clients = this.getClients().toArray(new Client[0]);
+        ArrayList<Client> deletes = new ArrayList<>();
+        for (Client client : clients) {
+             long last = client.getLastResponse();
+             if (now - last > seconds) {
+                 deletes.add(client);
+             }
+        }
+        synchronized (this.clients) {
+            for (Client c : deletes) {
+                this.removeClient(c);
+            }
+        }
+        this.sendMessage(Message.Ping());
     }
 }
