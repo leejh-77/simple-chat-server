@@ -37,10 +37,13 @@ public class Room implements MessageHandler {
 
     public void handleMessage(Client c, Message message) {
         Message.Type type = message.getType();
-        assert(type != Message.Type.entrance);
-
+        System.out.println("Room - " + this.id + message);
         switch (type) {
-            case chat, exit -> this.caster.sendMessage(message);
+            case exit -> {
+                this.removeClient(c);
+                this.caster.sendMessage(message);
+            }
+            case chat, entrance -> this.caster.sendMessage(message);
             case ping -> {} // ignore ping
         }
     }
@@ -59,7 +62,6 @@ public class Room implements MessageHandler {
         for (Client c : deletes) {
             this.removeClient(c);
         }
-
-        this.handleMessage(null, Message.Ping());
+        this.caster.sendMessage(Message.Ping());
     }
 }

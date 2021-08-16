@@ -33,6 +33,16 @@ public class Message {
         return name;
     }
 
+    @Override
+    public String toString() {
+        return "Message{" +
+                "type=" + type +
+                ", message='" + message + '\'' +
+                ", name='" + name + '\'' +
+                ", room=" + room +
+                '}';
+    }
+
     public static Message Chat(String name, String message) {
         Message instance = new Message();
         instance.name = name;
@@ -44,7 +54,7 @@ public class Message {
     public static Message Exit(String name) {
         Message instance = new Message();
         instance.type = Type.exit;
-        instance.message = name + " has exited this room";
+        instance.name = name;
         return instance;
     }
 

@@ -76,7 +76,6 @@ public class Application {
                     switch (message.getType()) {
                         case ping -> {
                             write(Message.Ping());
-                            System.out.println("ping requested");
                         }
                         case entrance -> System.out.println(message.getName() + " has entered");
                         case exit -> System.out.println(message.getName() + " has left");
