@@ -56,15 +56,13 @@ class BroadCaster extends Thread {
     }
 
     private void broadCast(Message[] messages) {
-        ArrayList<Client> clients = new ArrayList<>(this.room.getClients());
         for (Message message : messages) {
-            for (int i = clients.size() - 1; i >= 0; i--) {
-                Client client = clients.get(i);
+            ArrayList<Client> clients = new ArrayList<>(this.room.getClients());
+            for (Client client : clients) {
                 try {
                     Utils.getMapper().writeValue(client.getOutputStream(), message);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    clients.remove(i);
                     this.room.removeClient(client);
                 }
             }
