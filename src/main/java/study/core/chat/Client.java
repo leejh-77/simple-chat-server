@@ -32,7 +32,7 @@ class Client implements Runnable {
         try {
             this.readPipe();
         } catch (Exception e) {
-            this.close();
+            // client disconnected
         } finally {
             this.close();
         }

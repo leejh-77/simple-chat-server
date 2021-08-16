@@ -74,9 +74,7 @@ public class Application {
                 try {
                     Message message = Utils.getMapper().readValue(socket.getInputStream(), Message.class);
                     switch (message.getType()) {
-                        case ping -> {
-                            write(Message.Ping());
-                        }
+                        case ping -> write(Message.Ping());
                         case entrance -> System.out.println(message.getName() + " has entered");
                         case exit -> System.out.println(message.getName() + " has left");
                         case chat -> System.out.println(message.getName() + " : " + message.getMessage());
