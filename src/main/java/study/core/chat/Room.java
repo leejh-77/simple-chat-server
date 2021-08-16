@@ -36,8 +36,13 @@ public class Room implements MessageHandler {
     }
 
     public void handleMessage(Client c, Message message) {
-        assert(message.getType() != Message.Type.entrance);
-        this.caster.sendMessage(message);
+        Message.Type type = message.getType();
+        assert(type != Message.Type.entrance);
+
+        switch (type) {
+            case chat, exit -> this.caster.sendMessage(message);
+            case ping -> {} // ignore ping
+        }
     }
 
     void sendPing(long seconds) {

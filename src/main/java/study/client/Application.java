@@ -13,6 +13,11 @@ public class Application {
     private String name;
     private int roomId;
 
+    public static void main(String[] args) throws IOException {
+        Application app = new Application("localhost", 8901);
+        app.run();
+    }
+
     Application(String host, int port) throws IOException {
         this.socket = new Socket(host, port);
     }
@@ -21,7 +26,6 @@ public class Application {
         this.prepare();
         this.connect();
 
-        System.out.println("Connection successfully established");
         Scanner sc = new Scanner(System.in);
         while (true) {
             String msg = sc.nextLine();
@@ -48,20 +52,19 @@ public class Application {
     }
 
     private void connect() throws IOException {
-        new ChatReader(socket).start();
+        new ChatReader().start();
         this.write(Message.Entrance(this.name, this.roomId));
     }
 
     void write(Message message) throws IOException {
-        Utils.getMapper().writeValue(this.socket.getOutputStream(), message);
+        synchronized (this) {
+            Utils.getMapper().writeValue(this.socket.getOutputStream(), message);
+        }
     }
 
-    static class ChatReader extends Thread {
+    private class ChatReader extends Thread {
 
-        private final Socket socket;
-
-        ChatReader(Socket socket) {
-            this.socket = socket;
+        ChatReader() {
             super.setDaemon(true);
         }
 
@@ -71,13 +74,17 @@ public class Application {
                 try {
                     Message message = Utils.getMapper().readValue(socket.getInputStream(), Message.class);
                     switch (message.getType()) {
-                        case ping -> System.out.println("ping requested");
+                        case ping -> {
+                            write(Message.Ping());
+                            System.out.println("ping requested");
+                        }
                         case entrance -> System.out.println(message.getName() + " has entered");
                         case exit -> System.out.println(message.getName() + " has left");
                         case chat -> System.out.println(message.getName() + " : " + message.getMessage());
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                    break;
                 }
             }
         }
