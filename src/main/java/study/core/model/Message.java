@@ -41,19 +41,11 @@ public class Message {
         return instance;
     }
 
-    public static Message Chat(String message) {
-        return Chat(null, message);
-    }
-
     public static Message Exit(String name) {
         Message instance = new Message();
         instance.type = Type.exit;
         instance.message = name + " has exited this room";
         return instance;
-    }
-
-    public static Message Exit() {
-        return Exit(null);
     }
 
     public static Message Ping() {

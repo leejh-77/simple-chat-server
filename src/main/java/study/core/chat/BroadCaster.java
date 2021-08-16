@@ -11,13 +11,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 
-class BroadCaster implements Runnable {
+class BroadCaster extends Thread {
 
     private final ArrayList<Message> messages = new ArrayList<>();
     private final Room room;
 
     BroadCaster(Room room) {
-        new Thread(this).start();
         this.room = room;
     }
 
@@ -26,7 +25,11 @@ class BroadCaster implements Runnable {
             this.messages.add(message);
         }
         synchronized (this) {
-            this.notifyAll();
+            if (!this.isAlive()) {
+                this.start();
+            } else {
+                this.notifyAll();
+            }
         }
     }
 

@@ -3,12 +3,11 @@ package study.core.chat;
 import study.core.model.Message;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-public class Room {
+public class Room implements MessageHandler {
 
-    private long id;
+    private final long id;
     private final BroadCaster caster = new BroadCaster(this);
     private final List<Client> clients = new ArrayList<>();
 
@@ -17,15 +16,15 @@ public class Room {
     }
 
     void addClient(Client c) {
-        System.out.println("client entered - " + c.getName() + ", room : " + this.id);
-        c.setRoom(this);
+        System.out.println("client entered - room : " + this.id);
+        c.setMessageHandler(this);
         synchronized (this.clients) {
             this.clients.add(c);
         }
     }
 
     void removeClient(Client c) {
-        System.out.println("client removed - " + c.getName() + ", room : " + this.id);
+        System.out.println("client left - room : " + this.id);
         synchronized (this.clients) {
             this.clients.remove(c);
             c.terminate();
@@ -36,7 +35,8 @@ public class Room {
         return this.clients;
     }
 
-    void sendMessage(Message message) {
+    public void handleMessage(Client c, Message message) {
+        assert(message.getType() != Message.Type.entrance);
         this.caster.sendMessage(message);
     }
 
@@ -50,11 +50,11 @@ public class Room {
                  deletes.add(client);
              }
         }
-        synchronized (this.clients) {
-            for (Client c : deletes) {
-                this.removeClient(c);
-            }
+
+        for (Client c : deletes) {
+            this.removeClient(c);
         }
-        this.sendMessage(Message.Ping());
+
+        this.handleMessage(null, Message.Ping());
     }
 }

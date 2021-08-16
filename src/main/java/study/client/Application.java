@@ -26,11 +26,11 @@ public class Application {
         while (true) {
             String msg = sc.nextLine();
             if (msg.equals("exit")) {
-                this.write(Message.Exit());
+                this.write(Message.Exit(this.name));
                 System.out.println("bye");
                 break;
             }
-            this.write(Message.Chat(msg));
+            this.write(Message.Chat(this.name, msg));
         }
     }
 

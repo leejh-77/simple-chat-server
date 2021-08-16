@@ -1,19 +1,16 @@
 package study.core.chat;
 
+import study.core.model.Message;
+
 import java.net.Socket;
 import java.util.Collection;
 import java.util.HashMap;
 
-public class Center {
+public class Center implements MessageHandler {
 
     private static final long PING_INTERVAL = 60 * 1000; // miilis
-    private static final Center instance = new Center();
 
     private final HashMap<Integer, Room> rooms = new HashMap<>();
-
-    public static Center getInstance() {
-        return instance;
-    }
 
     public Center() {
         this.rooms.put(1, new Room(1));
@@ -21,16 +18,20 @@ public class Center {
     }
 
     public void createClient(Socket socket) {
-        new Client(socket).start();
-    }
-
-    void onClientEntered(Client client, Integer roomId) {
-        Room room = rooms.get(roomId);
-        room.addClient(client);
+        Client c = new Client(socket);
+        c.setMessageHandler(this);
+        c.start();
     }
 
     Collection<Room> getRooms() {
         return this.rooms.values();
     }
 
+    @Override
+    public void handleMessage(Client c, Message message) {
+        assert(message.getType() == Message.Type.entrance);
+        Room room = rooms.get(message.getRoom());
+        room.addClient(c);
+        room.handleMessage(c, message);
+    }
 }

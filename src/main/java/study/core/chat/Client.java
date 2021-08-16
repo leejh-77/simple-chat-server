@@ -13,12 +13,9 @@ class Client implements Runnable {
 
     private final Socket socket;
 
-    private long lastResponse;
-
-    private Room room;
-    private String name;
-
+    private MessageHandler handler;
     private boolean isAlive;
+    private long lastResponse;
 
     Client(Socket socket) {
         this.isAlive = true;
@@ -35,35 +32,30 @@ class Client implements Runnable {
         try {
             this.readPipe();
         } catch (Exception e) {
-            try {
-                this.socket.close();
-            } catch (IOException ex) {
-                e.printStackTrace();
-            }
+            this.close();
+        } finally {
+            this.close();
+        }
+    }
+
+    private void close() {
+        try {
+            this.socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     private void readPipe() throws IOException {
         while (this.isAlive) {
             Message message = Utils.getMapper().readValue(this.socket.getInputStream(), Message.class);
-            switch (message.getType()) {
-                case chat -> this.room.sendMessage(Message.Chat(this.name, message.getMessage()));
-                case exit -> this.room.sendMessage(Message.Exit(this.name));
-                case entrance -> {
-                    this.name = message.getName();
-                    Center.getInstance().onClientEntered(this, message.getRoom());
-                }
-            }
+            this.handler.handleMessage(this, message);
             this.lastResponse = System.currentTimeMillis();
         }
     }
 
-    void setRoom(Room room) {
-        this.room = room;
-    }
-
-    public String getName() {
-        return name;
+    void setMessageHandler(MessageHandler handler) {
+        this.handler = handler;
     }
 
     OutputStream getOutputStream() throws IOException {
